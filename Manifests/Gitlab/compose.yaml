@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  gitlab-server:
+    image: 'docker.arvancloud.ir/gitlab/gitlab-ce:18.10.1-ce.0'
+    container_name: gitlab-server
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+      - '22:22'
+    environment:
+      GITLAB_ROOT_EMAIL: "admin@amin.local"
+      GITLAB_ROOT_PASSWORD: "test"
+      TZ: Asia/Tehran
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.test.ir'
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        gitlab_rails['gitlab_shell_ssh_port'] = 22
+        prometheus['enable'] = true
+        prometheus['listen_address'] = '0.0.0.0:9090'
+        prometheus['listen_port'] = 9090
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/data:/var/opt/gitlab
+      - ./gitlab/log:/var/log/gitlab
+    networks:
+      - gitlab-net
+
+networks:
+  gitlab-net:
+    driver: bridge
